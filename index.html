@@ -1,0 +1,443 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DY0132 漏取数据进度同步页</title>
+  <style>
+    :root {
+      --bg: #f6f8f7;
+      --card: #ffffff;
+      --text: #1f2a2e;
+      --muted: #5f6f75;
+      --line: #d8e1dd;
+      --primary: #1b9c85;
+      --secondary: #eb7f2d;
+      --ok: #12935c;
+      --warn: #b7791f;
+      --todo: #8a5d3b;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(27, 156, 133, 0.15), transparent 34%),
+        radial-gradient(circle at 85% 8%, rgba(235, 127, 45, 0.12), transparent 28%),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 18px 40px; }
+
+    .hero {
+      background: linear-gradient(120deg, #0f7665 0%, #1b9c85 55%, #2fa58f 100%);
+      color: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(21, 66, 58, 0.22);
+      animation: rise 560ms ease;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 { margin: 0 0 10px; font-size: 30px; line-height: 1.25; letter-spacing: 0.2px; }
+    .hero p { margin: 0; opacity: 0.95; }
+
+    .facts {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .fact {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      backdrop-filter: blur(1px);
+    }
+
+    .grid { display: grid; gap: 14px; margin-top: 16px; }
+    .grid.two { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid.three { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(29, 53, 58, 0.06);
+      animation: rise 640ms ease;
+    }
+
+    .card h2, .card h3 { margin: 0 0 10px; font-size: 18px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .kpi {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 9px 10px;
+    }
+    .kpi .v { font-size: 22px; font-weight: 700; line-height: 1.1; }
+    .kpi .t { font-size: 12px; color: var(--muted); }
+
+    .bar-row { margin: 10px 0 12px; }
+    .bar-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #e8efed;
+      overflow: hidden;
+    }
+    .bar > span { display: block; height: 100%; border-radius: 999px; }
+
+    .primary { background: linear-gradient(90deg, #14866f, #1fb193); }
+    .secondary { background: linear-gradient(90deg, #d8681d, #f19a3c); }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .month {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .month-label { color: var(--muted); font-weight: 600; }
+    .month-bars { display: grid; gap: 5px; }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-right: 8px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .ok { background: var(--ok); }
+    .warn { background: var(--warn); }
+    .todo { background: var(--todo); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e8efed; }
+    th { color: var(--muted); font-weight: 600; }
+
+    .note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    details { border-top: 1px solid #e8efed; padding-top: 8px; margin-top: 8px; }
+    summary { cursor: pointer; color: #156f5f; font-weight: 600; }
+
+    @media (max-width: 680px) {
+      h1 { font-size: 23px; }
+      .kpi .v { font-size: 18px; }
+      .month { grid-template-columns: 60px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>DY0132 漏取数据处理进度同步页</h1>
+      <p>用途：给内外部快速同步“一期 vs 三期”的漏取规模、差异与当前处理重点。页面不做复杂分析，只保留最关键结论。</p>
+      <div class="facts" id="heroFacts"></div>
+    </section>
+
+    <section class="grid two" id="phaseCards"></section>
+
+    <section class="grid two">
+      <article class="card">
+        <h2>规模对比与差异</h2>
+        <div class="sub">优先看清一期与三期是不是同一批问题，以及差异是否收敛</div>
+        <div id="compareBars"></div>
+        <div id="keyDiffs"></div>
+      </article>
+      <article class="card">
+        <h2>当前处理进度（同步口径）</h2>
+        <div class="sub">以下为基于两份漏取清单可直接同步的处理状态</div>
+        <div class="step"><span class="tag ok">已完成</span>漏取识别：一期/三期清单已拉齐，可直接对外同步规模与范围。</div>
+        <div class="step" style="margin-top:8px;"><span class="tag warn">进行中</span>补数执行：按店铺集中度优先处理高占比店铺，优先降低三期头部风险。</div>
+        <div class="step" style="margin-top:8px;"><span class="tag todo">待完成</span>回填闭环：补数后需做复核，更新“剩余漏取量”并确认是否归零。</div>
+      </article>
+    </section>
+
+    <section class="grid two">
+      <article class="card">
+        <h2>月度缺失趋势（简版）</h2>
+        <div class="sub">用于判断缺失高峰阶段，辅助安排补数优先级</div>
+        <div class="timeline" id="monthly"></div>
+      </article>
+      <article class="card">
+        <h2>重点店铺（按缺失条数）</h2>
+        <div class="sub">头部店铺贡献了大部分缺失量，建议优先处理</div>
+        <div id="topStoreTables"></div>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>需要同步给他人的重点事实</h2>
+      <ul id="factsList" style="margin: 8px 0 0 18px; padding:0;"></ul>
+
+      <details>
+        <summary>展开查看简洁明细样本（非全量）</summary>
+        <div class="grid two" id="sampleTables" style="margin-top:10px;"></div>
+      </details>
+
+      <div class="note" id="footerNote"></div>
+    </section>
+  </div>
+
+  <script>
+    const data = {
+      updatedAt: "2026-04-10",
+      source: {
+        phase1: "_查询DY0132_缺失的缺失商品ID_指定范围_且只筛选_RPA商品载体_全部_SELECT_DISTINCT_a_RPA店铺_202604071636.csv",
+        phase3: "_查询DY0132_缺失的缺失商品ID_指定范围_且只筛选_RPA商品载体_全部_指定新店铺名单_SELECT_DISTINCT_202604071639.csv"
+      },
+      phase1: {
+        totalRows: 794,
+        stores: 11,
+        items: 324,
+        dateMin: "2025-10-01",
+        dateMax: "2026-04-06",
+        top3Share: 61.5,
+        peak: { date: "2025-10-10", count: 18 },
+        topStores: [
+          { shop: "凤舞九天宠物专营店", storeId: "146228995", count: 205 },
+          { shop: "凤舞九天宠物食品专营店", storeId: "177974034", count: 172 },
+          { shop: "凤舞宠物用品专营店", storeId: "179573474", count: 111 },
+          { shop: "乖宝宠物旗舰店", storeId: "16587385", count: 58 },
+          { shop: "凤舞宠物专营店", storeId: "182057635", count: 57 }
+        ],
+        monthly: [
+          { month: "2025-10", count: 339 },
+          { month: "2025-11", count: 137 },
+          { month: "2025-12", count: 107 },
+          { month: "2026-01", count: 106 },
+          { month: "2026-02", count: 67 },
+          { month: "2026-03", count: 35 },
+          { month: "2026-04", count: 3 }
+        ],
+        sample: [
+          { shop: "麦富迪喜宠宠物专卖店", date: "2025-10-01", itemId: "3720187740109799702", storeId: "144152929" },
+          { shop: "凤舞九天宠物食品专营店", date: "2025-10-01", itemId: "3742798217507635402", storeId: "177974034" },
+          { shop: "凤舞宠物用品专营店", date: "2025-10-01", itemId: "3697397997378863323", storeId: "179573474" },
+          { shop: "佰萃官方旗舰店", date: "2025-10-01", itemId: "3675526357292548239", storeId: "21825345" },
+          { shop: "凤舞九天宠物专营店", date: "2025-10-02", itemId: "3745610720889405792", storeId: "146228995" }
+        ]
+      },
+      phase3: {
+        totalRows: 227,
+        stores: 7,
+        items: 43,
+        dateMin: "2025-12-23",
+        dateMax: "2026-03-20",
+        top3Share: 77.5,
+        peak: { date: "2025-12-30", count: 22 },
+        topStores: [
+          { shop: "麦富迪官方旗舰店", storeId: "2236469", count: 75 },
+          { shop: "奶弗宠物食品旗舰店", storeId: "216106895", count: 70 },
+          { shop: "弗列加特FREGATE官方旗舰店", storeId: "20401080", count: 31 },
+          { shop: "BARF霸弗宠物食品旗舰店", storeId: "34155233", count: 18 },
+          { shop: "营养森林官方旗舰店", storeId: "223286288", count: 13 }
+        ],
+        monthly: [
+          { month: "2025-12", count: 113 },
+          { month: "2026-01", count: 84 },
+          { month: "2026-02", count: 16 },
+          { month: "2026-03", count: 14 }
+        ],
+        sample: [
+          { shop: "弗列加特FREGATE官方旗舰店", date: "2025-12-23", itemId: "3652289264751898465", storeId: "20401080" },
+          { shop: "弗列加特FREGATE官方旗舰店", date: "2025-12-23", itemId: "3788089283282337966", storeId: "20401080" },
+          { shop: "奶弗宠物食品旗舰店", date: "2025-12-23", itemId: "3767838922802069835", storeId: "216106895" },
+          { shop: "奶弗宠物食品旗舰店", date: "2025-12-23", itemId: "3777841173578776670", storeId: "216106895" },
+          { shop: "麦富迪官方旗舰店", date: "2025-12-23", itemId: "3796357335087946917", storeId: "2236469" }
+        ]
+      },
+      compare: {
+        rowRatio: 28.6,
+        rowDelta: -567,
+        rowChangePct: -71.4,
+        storeIntersection: 0,
+        itemIntersection: 0,
+        phase1OnlyStores: 11,
+        phase3OnlyStores: 7
+      }
+    };
+
+    const nf = new Intl.NumberFormat("zh-CN");
+
+    function pct(v) {
+      return `${v > 0 ? "+" : ""}${v}%`;
+    }
+
+    function buildHeroFacts() {
+      const total = data.phase1.totalRows + data.phase3.totalRows;
+      const tags = [
+        `缺失记录总量：${nf.format(total)} 条`,
+        `一期：${nf.format(data.phase1.totalRows)} 条`,
+        `三期：${nf.format(data.phase3.totalRows)} 条`,
+        `一期/三期店铺交集：${data.compare.storeIntersection} 家`,
+        `一期/三期商品ID交集：${data.compare.itemIntersection} 个`
+      ];
+      document.getElementById("heroFacts").innerHTML = tags.map(t => `<span class=\"fact\">${t}</span>`).join("");
+    }
+
+    function phaseCard(title, phase, color) {
+      return `
+      <article class="card">
+        <h2>${title}</h2>
+        <div class="sub">时间范围：${phase.dateMin} ~ ${phase.dateMax}</div>
+        <div class="kpis">
+          <div class="kpi"><div class="v">${nf.format(phase.totalRows)}</div><div class="t">缺失记录数</div></div>
+          <div class="kpi"><div class="v">${nf.format(phase.stores)}</div><div class="t">涉及店铺数</div></div>
+          <div class="kpi"><div class="v">${nf.format(phase.items)}</div><div class="t">去重商品ID</div></div>
+          <div class="kpi"><div class="v">${phase.top3Share}%</div><div class="t">Top3店铺占比</div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-head"><span>单日峰值</span><strong>${phase.peak.date} / ${phase.peak.count} 条</strong></div>
+          <div class="bar"><span class="${color}" style="width:${Math.min(100, phase.peak.count * 4)}%"></span></div>
+        </div>
+      </article>`;
+    }
+
+    function buildPhaseCards() {
+      const html = [
+        phaseCard("一期概览（RPA店铺）", data.phase1, "primary"),
+        phaseCard("三期概览（指定新店铺名单）", data.phase3, "secondary")
+      ].join("");
+      document.getElementById("phaseCards").innerHTML = html;
+    }
+
+    function buildCompare() {
+      const max = Math.max(data.phase1.totalRows, data.phase3.totalRows);
+      const p1w = (data.phase1.totalRows / max) * 100;
+      const p3w = (data.phase3.totalRows / max) * 100;
+      document.getElementById("compareBars").innerHTML = `
+        <div class="bar-row">
+          <div class="bar-head"><span>一期缺失记录</span><strong>${nf.format(data.phase1.totalRows)}</strong></div>
+          <div class="bar"><span class="primary" style="width:${p1w}%"></span></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-head"><span>三期缺失记录</span><strong>${nf.format(data.phase3.totalRows)}（一期的 ${data.compare.rowRatio}%）</strong></div>
+          <div class="bar"><span class="secondary" style="width:${p3w}%"></span></div>
+        </div>
+      `;
+
+      const diffs = [
+        `三期缺失条数较一期变化 ${pct(data.compare.rowChangePct)}，绝对差值 ${nf.format(data.compare.rowDelta)} 条。`,
+        `一期与三期店铺交集为 ${data.compare.storeIntersection}，说明两期店铺范围独立。`,
+        `一期与三期商品ID交集为 ${data.compare.itemIntersection}，说明不是同一批商品重复漏取。`,
+        `三期头部集中度更高（Top3 占比 ${data.phase3.top3Share}%），建议优先处理前三店铺。`
+      ];
+      document.getElementById("keyDiffs").innerHTML = `<ul style="margin:0 0 0 18px;padding:0;">${diffs.map(d => `<li style=\"margin:6px 0;\">${d}</li>`).join("")}</ul>`;
+    }
+
+    function buildMonthly() {
+      const map = new Map();
+      data.phase1.monthly.forEach(m => map.set(m.month, { month: m.month, p1: m.count, p3: 0 }));
+      data.phase3.monthly.forEach(m => {
+        if (!map.has(m.month)) map.set(m.month, { month: m.month, p1: 0, p3: m.count });
+        else map.get(m.month).p3 = m.count;
+      });
+      const rows = [...map.values()].sort((a, b) => a.month.localeCompare(b.month));
+      const max = Math.max(...rows.map(r => Math.max(r.p1, r.p3)));
+
+      document.getElementById("monthly").innerHTML = rows.map(r => `
+        <div class="month">
+          <div class="month-label">${r.month}</div>
+          <div class="month-bars">
+            <div class="bar-head"><span>一期 ${r.p1}</span></div>
+            <div class="bar"><span class="primary" style="width:${(r.p1 / max) * 100}%"></span></div>
+            <div class="bar-head"><span>三期 ${r.p3}</span></div>
+            <div class="bar"><span class="secondary" style="width:${(r.p3 / max) * 100}%"></span></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function table(title, rows) {
+      return `
+      <h3 style="margin-top:4px;">${title}</h3>
+      <table>
+        <thead><tr><th>店铺</th><th>店铺ID</th><th>缺失条数</th></tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr><td>${r.shop}</td><td>${r.storeId}</td><td>${nf.format(r.count)}</td></tr>`).join("")}
+        </tbody>
+      </table>`;
+    }
+
+    function buildTopStores() {
+      document.getElementById("topStoreTables").innerHTML =
+        table("一期 Top5", data.phase1.topStores) +
+        table("三期 Top5", data.phase3.topStores);
+    }
+
+    function sampleTable(title, rows) {
+      return `
+      <div>
+        <h3 style="margin:0 0 8px;">${title}</h3>
+        <table>
+          <thead><tr><th>店铺</th><th>日期</th><th>缺失商品ID</th></tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr><td>${r.shop}</td><td>${r.date}</td><td>${r.itemId}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+    }
+
+    function buildFactsAndSamples() {
+      const list = [
+        `此次页面用于同步“平台漏取”问题，不是原始数据明细系统。`,
+        `一期（RPA店铺）缺失量 ${nf.format(data.phase1.totalRows)} 条；三期（指定新店铺）缺失量 ${nf.format(data.phase3.totalRows)} 条。`,
+        `一期与三期店铺、商品ID交集都为 0，表明两期是不同范围的漏取清单。`,
+        `当前补数优先级建议：三期前 3 店铺（占比 ${data.phase3.top3Share}%）+ 一期前三高占比店铺。`
+      ];
+      document.getElementById("factsList").innerHTML = list.map(s => `<li style=\"margin:6px 0;\">${s}</li>`).join("");
+
+      document.getElementById("sampleTables").innerHTML =
+        sampleTable("一期样本（5行）", data.phase1.sample) +
+        sampleTable("三期样本（5行）", data.phase3.sample);
+
+      document.getElementById("footerNote").textContent =
+        `数据来源：${data.source.phase1}；${data.source.phase3}。页面更新时间：${data.updatedAt}。`;
+    }
+
+    buildHeroFacts();
+    buildPhaseCards();
+    buildCompare();
+    buildMonthly();
+    buildTopStores();
+    buildFactsAndSamples();
+  </script>
+</body>
+</html>
